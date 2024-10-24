@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro da Indústria</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .actions button {
+            background-color: #007BFF;
+            margin-right: 5px;
+        }
+        .actions button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Cadastro da Indústria</h1>
+
+<form id="industryForm">
+    <input type="hidden" id="entityId">
+    <label for="entityType">Tipo de Entidade:</label>
+    <select id="entityType" required>
+        <option value="">Selecione...</option>
+        <option value="peca">Peça</option>
+        <option value="deposito">Depósito</option>
+        <option value="fornecedor">Fornecedor</option>
+        <option value="projeto">Projeto</option>
+        <option value="funcionario">Funcionário</option>
+        <option value="departamento">Departamento</option>
+    </select>
+    
+    <div id="formFields"></div>
+
+    <button type="submit">Salvar</button>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tipo</th>
+            <th>Dados</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody id="entityList"></tbody>
+</table>
+
+<script>
+    let entities = [];
+    let currentId = 0;
+
+    document.getElementById('entityType').addEventListener('change', function() {
+        const type = this.value;
+        const formFields = document.getElementById('formFields');
+        formFields.innerHTML = '';
+
+        if (type === 'peca') {
+            formFields.innerHTML = `
+                <label for="pecaNumero">Número:</label>
+                <input type="text" id="pecaNumero" required>
+                <label for="pecaPeso">Peso:</label>
+                <input type="number" id="pecaPeso" required>
+                <label for="pecaCor">Cor:</label>
+                <input type="text" id="pecaCor" required>
+            `;
+        } else if (type === 'deposito') {
+            formFields.innerHTML = `
+                <label for="depositoNumero">Número:</label>
+                <input type="text" id="depositoNumero" required>
+                <label for="depositoEndereco">Endereço:</label>
+                <input type="text" id="depositoEndereco" required>
+            `;
+        } else if (type === 'fornecedor') {
+            formFields.innerHTML = `
+                <label for="fornecedorNumero">Número:</label>
+                <input type="text" id="fornecedorNumero" required>
+                <label for="fornecedorEndereco">Endereço:</label>
+                <input type="text" id="fornecedorEndereco" required>
+            `;
+        } else if (type === 'projeto') {
+            formFields.innerHTML = `
+                <label for="projetoNumero">Número:</label>
+                <input type="text" id="projetoNumero" required>
+                <label for="projetoOrcamento">Orçamento:</label>
+                <input type="number" id="projetoOrcamento" required>
+                <label for="projetoDataInicio">Data de Início:</label>
+                <input type="date" id="projetoDataInicio" required>
+                <label for="projetoHorasTrabalhadas">Horas Trabalhadas:</label>
+                <input type="number" id="projetoHorasTrabalhadas" required>
+            `;
+        } else if (type === 'funcionario') {
+            formFields.innerHTML = `
+                <label for="funcionarioNumero">Número:</label>
+                <input type="text" id="funcionarioNumero" required>
+                <label for="funcionarioSalario">Salário:</label>
+                <input type="number" id="funcionarioSalario" required>
+                <label for="funcionarioTelefone">Telefone:</label>
+                <input type="text" id="funcionarioTelefone" required>
+            `;
+        } else if (type === 'departamento') {
+            formFields.innerHTML = `
+                <label for="departamentoNumero">Número:</label>
+                <input type="text" id="departamentoNumero" required>
+                <label for="departamentoSetor">Setor:</label>
+                <input type="text" id="departamentoSetor" required>
+            `;
+        }
+    });
+
+    document.getElementById('industryForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        
+        const type = document.getElementById('entityType').value;
+        const data = {};
+
+        if (type === 'peca') {
+            data.numero = document.getElementById('pecaNumero').value;
+            data.peso = document.getElementById('pecaPeso').value;
+            data.cor = document.getElementById('pecaCor').value;
+        } else if (type === 'deposito') {
+            data.numero = document.getElementById('depositoNumero').value;
+            data.endereco = document.getElementById('depositoEndereco').value;
+        } else if (type === 'fornecedor') {
+            data.numero = document.getElementById('fornecedorNumero').value;
+            data.endereco = document.getElementById('fornecedorEndereco').value;
+        } else if (type === 'projeto') {
+            data.numero = document.getElementById('projetoNumero').value;
+            data.orcamento = document.getElementById('projetoOrcamento').value;
+            data.dataInicio = document.getElementById('projetoDataInicio').value;
+            data.horasTrabalhadas = document.getElementById('projetoHorasTrabalhadas').value;
+        } else if (type === 'funcionario') {
+            data.numero = document.getElementById('funcionarioNumero').value;
+            data.salario = document.getElementById('funcionarioSalario').value;
+            data.telefone = document.getElementById('funcionarioTelefone').value;
+        } else if (type === 'departamento') {
+            data.numero = document.getElementById('departamentoNumero').value;
+            data.setor = document.getElementById('departamentoSetor').value;
+        }
+
+        const id = document.getElementById('entityId').value;
+
+        if (id) {
+            const entityIndex = entities.findIndex(entity => entity.id === parseInt(id));
+            entities[entityIndex] = { id: parseInt(id), type, data };
+        } else {
+            currentId++;
+            entities.push({ id: currentId, type, data });
+        }
+
+        document.getElementById('industryForm').reset();
+        document.getElementById('entityId').value = '';
+        document.getElementById('formFields').innerHTML = '';
+        document.getElementById('entityType').value = '';
+        renderEntities();
+    });
+
+    function renderEntities() {
+        const entityList = document.getElementById('entityList');
+        entityList.innerHTML = '';
+        entities.forEach(entity => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${entity.id}</td>
+                <td>${entity.type.charAt(0).toUpperCase() + entity.type.slice(1)}</td>
+                <td>${JSON.stringify(entity.data)}</td>
+                <td class="actions">
+                    <button onclick="editEntity(${entity.id})">Editar</button>
+                    <button onclick="deleteEntity(${entity.id})">Excluir</button>
+                </td>
+            `;
+            entityList.appendChild(row);
+        });
+    }
+
+    function editEntity(id) {
+        const entity = entities.find(entity => entity.id === id);
+        document.getElementById('entityType').value = entity.type;
+        document.getElementById('entityId').value = entity.id;
+
+        const formFields = document.getElementById('formFields');
+        formFields.innerHTML = '';
+
+        if (entity.type === 'peca') {
+            formFields.innerHTML = `
+                <label for="pecaNumero">Número:</label>
+                <input type="text" id="pecaNumero" value="${entity.data.numero}" required>
+                <label for="pecaPeso">Peso:</label>
+                <input type="number" id="pecaPeso" value="${entity.data.peso}" required>
+                <label for="pecaCor">Cor:</label>
+                <input type="text" id="pecaCor" value="${entity.data.cor}" required>
+            `;
+        } else if (entity.type === 'deposito') {
+            formFields.innerHTML = `
+                <label for="depositoNumero">Número:</label>
+                <input type="text" id="depositoNumero" value="${entity.data.numero}" required>
+                <label for="depositoEndereco">Endereço:</label>
+                <input type="text" id="depositoEndereco" value="${entity.data.endereco}" required>
+            `;
+        } else if (entity.type === 'fornecedor') {
+            formFields.innerHTML = `
+                <label for="fornecedorNumero">Número:</label>
+                <input type="text" id="fornecedorNumero" value="${entity.data.numero}" required>
+                <label for="fornecedorEndereco">Endereço:</label>
+                <input type="text" id="fornecedorEndereco" value="${entity.data.endereco}" required>
+            `;
+        } else if (entity.type === 'projeto') {
+            formFields.innerHTML = `
+                <label for="projetoNumero">Número:</label>
+                <input type="text" id="projetoNumero" value="${entity.data.numero}" required>
+                <label for="projetoOrcamento">Orçamento:</label>
+                <input type="number" id="projetoOrcamento" value="${entity.data.orcamento}" required>
+                <label for="projetoDataInicio">Data de Início:</label>
+                <input type="date" id="projetoDataInicio" value="${entity.data.dataInicio}" required>
+                <label for="projetoHorasTrabalhadas">Horas Trabalhadas:</label>
+                <input type="number" id="projetoHorasTrabalhadas" value="${entity.data.horasTrabalhadas}" required>
+            `;
+        } else if (entity.type === 'funcionario') {
+            formFields.innerHTML = `
+                <label for="funcionarioNumero">Número:</label>
+                <input type="text" id="funcionarioNumero" value="${entity.data.numero}" required>
+                <label for="funcionarioSalario">Salário:</label>
+                <input type="number" id="funcionarioSalario" value="${entity.data.salario}" required>
+                <label for="funcionarioTelefone">Telefone:</label>
+                <input type="text" id="funcionarioTelefone" value="${entity.data.telefone}" required>
+            `;
+        } else if (entity.type === 'departamento') {
+            formFields.innerHTML = `
+                <label for="departamentoNumero">Número:</label>
+                <input type="text" id="departamentoNumero" value="${entity.data.numero}" required>
+                <label for="departamentoSetor">Setor:</label>
+                <input type="text" id="departamentoSetor" value="${entity.data.setor}" required>
+            `;
+        }
+    }
+
+    function deleteEntity(id) {
+        entities = entities.filter(entity => entity.id !== id);
+        renderEntities();
+    }
+</script>
+
+</body>
+</html>
+
+
+
